@@ -14,6 +14,15 @@ In the meantime, you should use this project to replace the original Apollo 8.0.
 Details about environment setup: [Apollo-Carla co-simulation setup](https://github.com/guardstrikelab/carla_apollo_bridge/blob/master/docs/GettingStarted.md)
 
 
+Additionally, you can install the original [Apollo 8.0](https://github.com/ApolloAuto/apollo/tree/v8.0.0), and replace the following files with the ones in this repo:
+
+```shell
+modules/control/conf/control_conf.pb.txt
+
+modules/control/controller/mpc_controller.cc
+
+modules/control/controller/mpc_controller.h
+```
 
 ## Specific Modifications
 
