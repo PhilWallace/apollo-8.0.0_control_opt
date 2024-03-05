@@ -5,12 +5,17 @@ This rep is a branch of Apollo 8.0, in which the **controller** is particularly 
 
 ## How to use?
 
-According to co-simulation
+This project is expected to replace the original Apollo 8.0 for Apollo-Carla co-simulation. You should set up the co-simulation environment according to the bridge official: [Apollo-Carla official bridge](https://github.com/guardstrikelab/carla_apollo_bridge).
+
+In the meantime, you should use this project to replace the original Apollo 8.0.
+
+Details about environment setup: [Apollo-Carla co-simulation setup](https://github.com/guardstrikelab/carla_apollo_bridge/blob/master/docs/GettingStarted.md)
 
 
-## Modifications
 
-Compared with original Apollo 8.0 code
+## Specific Modifications
+
+Compared with original Apollo 8.0 code ()
 
 ```shell
 modules/control/conf/control_conf.pb.txt
