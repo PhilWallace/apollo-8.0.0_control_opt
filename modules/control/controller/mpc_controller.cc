@@ -21,6 +21,14 @@
 #include <limits>
 #include <utility>
 #include <vector>
+#include <random>
+
+#include <iostream>
+#include <fstream>
+
+#include <memory>
+#include <string>
+
 
 #include "Eigen/LU"
 #include "absl/strings/str_cat.h"
@@ -30,6 +38,9 @@
 #include "modules/common/math/math_utils.h"
 #include "modules/common/math/mpc_osqp.h"
 #include "modules/control/common/control_gflags.h"
+
+
+using namespace std;
 
 namespace apollo {
 namespace control {
@@ -384,7 +395,7 @@ Status MPCController::ComputeControlCommand(
   double unconstrained_control = 0.0;
   const double v = injector_->vehicle_state()->linear_velocity();
 
-  std::vector<double> control_cmd(controls_, 0);
+  std::vector<double> control_cmd(controls_ + 1, 0);
 
   apollo::common::math::MpcOsqp mpc_osqp(
       matrix_ad_, matrix_bd_, matrix_q_updated_, matrix_r_updated_,
@@ -398,6 +409,36 @@ Status MPCController::ComputeControlCommand(
     control[0](0, 0) = control_cmd.at(0);
     control[0](1, 0) = control_cmd.at(1);
   }
+
+
+  auto vehicle_state_mount_time = injector_->vehicle_state();
+
+
+
+
+
+  // Bug fix: Only update control signal when STATE is changed
+  // first run: save the initial values
+  if (is_first_run) {
+  prev_steer = control_cmd.at(0);
+  prev_acc = control_cmd.at(1);
+  previous_state_time_stamp = vehicle_state_mount_time->timestamp();
+  is_first_run = false;
+  } else {
+  // not first run, but state unchanged: use previous control command
+  if ( previous_state_time_stamp == vehicle_state_mount_time->timestamp()){
+    control[0](0, 0) = prev_steer;
+    control[0](1, 0) = prev_acc;
+  } else { // not first run, and state updated: use new control command and update the previous command and state
+    previous_state_time_stamp = vehicle_state_mount_time->timestamp();
+    prev_steer = control_cmd.at(0);
+    prev_acc = control_cmd.at(1);
+  }
+  }
+
+
+
+
 
   steer_angle_feedback = Wheel2SteerPct(control[0](0, 0));
   acc_feedback = control[0](1, 0);
@@ -431,11 +472,15 @@ Status MPCController::ComputeControlCommand(
 
   ADEBUG << "MPC core algorithm: calculation time is: "
          << (mpc_end_timestamp - mpc_start_timestamp) * 1000 << " ms.";
+  
 
-  // TODO(QiL): evaluate whether need to add spline smoothing after the result
-  double steer_angle = steer_angle_feedback +
-                       steer_angle_feedforwardterm_updated_ +
-                       steer_angle_ff_compensation;
+
+  // Bug fix: Delete redundant feed forward control for MPC
+  // double steer_angle = steer_angle_feedback + steer_angle_feedforwardterm_updated_;
+  double steer_angle = steer_angle_feedback + steer_angle_feedforwardterm_updated_;
+
+
+
 
   if (FLAGS_set_steer_limit) {
     const double steer_limit = std::atan(max_lat_acc_ * wheelbase_ /
@@ -451,15 +496,22 @@ Status MPCController::ComputeControlCommand(
     steer_angle = steer_angle_limited;
     debug->set_steer_angle_limited(steer_angle_limited);
   }
-  steer_angle = digital_filter_.Filter(steer_angle);
+
+
+  // Bug fix: `steer_angle` Should not be filtered twice!!!
+  // steer_angle = digital_filter_.Filter(steer_angle);
   // Clamp the steer angle to -100.0 to 100.0
   steer_angle = common::math::Clamp(steer_angle, -100.0, 100.0);
   cmd->set_steering_target(steer_angle);
 
   debug->set_acceleration_cmd_closeloop(acc_feedback);
 
-  double acceleration_cmd = acc_feedback + debug->acceleration_reference();
-  // TODO(QiL): add pitch angle feed forward to accommodate for 3D control
+
+  // Bug fix: Delete redundant feed forward control for MPC
+  // double acceleration_cmd = acc_feedback + debug->acceleration_reference();
+  double acceleration_cmd = acc_feedback;
+
+
 
   if ((planning_published_trajectory->trajectory_type() ==
        apollo::planning::ADCTrajectory::NORMAL) &&
@@ -473,7 +525,7 @@ Status MPCController::ComputeControlCommand(
     ADEBUG << "Stop location reached";
     debug->set_is_full_stop(true);
   }
-  // TODO(Yu): study the necessity of path_remain and add it to MPC if needed
+
 
   debug->set_acceleration_cmd(acceleration_cmd);
 
@@ -584,6 +636,9 @@ void MPCController::UpdateMatrix(SimpleMPCDebug *debug) {
 
 void MPCController::FeedforwardUpdate(SimpleMPCDebug *debug) {
   const double v = injector_->vehicle_state()->linear_velocity();
+
+
+
   const double kv =
       lr_ * mass_ / 2 / cf_ / wheelbase_ - lf_ * mass_ / 2 / cr_ / wheelbase_;
   steer_angle_feedforwardterm_ = Wheel2SteerPct(
@@ -594,8 +649,12 @@ void MPCController::ComputeLateralErrors(
     const double x, const double y, const double theta, const double linear_v,
     const double angular_v, const double linear_a,
     const TrajectoryAnalyzer &trajectory_analyzer, SimpleMPCDebug *debug) {
+  
+  
+  //const auto matched_point =
+  //    trajectory_analyzer.QueryNearestPointByPosition(x, y);
   const auto matched_point =
-      trajectory_analyzer.QueryNearestPointByPosition(x, y);
+      trajectory_analyzer.QueryNearestPointByAbsoluteTime(injector_->vehicle_state()->timestamp() + 0.6);
 
   const double dx = x - matched_point.path_point().x();
   const double dy = y - matched_point.path_point().y();
@@ -604,6 +663,15 @@ void MPCController::ComputeLateralErrors(
   const double sin_matched_theta = std::sin(matched_point.path_point().theta());
   // d_error = cos_matched_theta * dy - sin_matched_theta * dx;
   debug->set_lateral_error(cos_matched_theta * dy - sin_matched_theta * dx);
+
+  // compute long_error here!
+  debug->set_station_error(cos_matched_theta * dx - sin_matched_theta * dy);
+  // compute speed_error here!
+  debug->set_speed_error(matched_point.v() - linear_v);
+
+  // set speed ref here to calculate steer feedforward
+  debug->set_speed_reference(matched_point.v());
+  debug->set_acceleration_reference(matched_point.a());
 
   // matched_theta = matched_point.path_point().theta();
   debug->set_ref_heading(matched_point.path_point().theta());
@@ -700,11 +768,19 @@ void MPCController::ComputeLongitudinalErrors(
 
   debug->set_station_reference(reference_point.path_point().s());
   debug->set_station_feedback(s_matched);
-  debug->set_station_error(reference_point.path_point().s() - s_matched);
-  debug->set_speed_reference(reference_point.v());
+
+  // Fix: calculate Longitudinal error in MPCController::ComputeLateralErrors() INSTEAD OF HERE, for consistency on query point choice
+  //debug->set_station_error(reference_point.path_point().s() - s_matched);
+
+  // Fix: calculate Longitudinal error in MPCController::ComputeLateralErrors() INSTEAD OF HERE, for consistency on query point choice
+  //debug->set_speed_reference(reference_point.v());
   debug->set_speed_feedback(lon_speed);
-  debug->set_speed_error(reference_point.v() - s_dot_matched);
-  debug->set_acceleration_reference(reference_point.a());
+
+  // Fix: calculate Longitudinal error in MPCController::ComputeLateralErrors() INSTEAD OF HERE, for consistency on query point choice
+  //debug->set_speed_error(reference_point.v() - s_dot_matched);
+
+  // Fix: calculate Longitudinal error in MPCController::ComputeLateralErrors() INSTEAD OF HERE, for consistency on query point choice
+  //debug->set_acceleration_reference(reference_point.a());
   debug->set_acceleration_feedback(lon_acceleration);
   debug->set_acceleration_error(reference_point.a() -
                                 lon_acceleration / one_minus_kappa_lat_error);

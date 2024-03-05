@@ -25,8 +25,11 @@
 #include <memory>
 #include <string>
 
+#include <torch/script.h>
+#include <torch/torch.h>
+
 #include "Eigen/Core"
-#include "modules/common_msgs/config_msgs/vehicle_config.pb.h"
+#include "modules/common/configs/proto/vehicle_config.pb.h"
 #include "modules/common/filters/digital_filter.h"
 #include "modules/common/filters/digital_filter_coefficients.h"
 #include "modules/common/filters/mean_filter.h"
@@ -42,6 +45,8 @@
  */
 namespace apollo {
 namespace control {
+
+using apollo::common::TrajectoryPoint;
 
 /**
  * @class MPCController
@@ -101,6 +106,7 @@ class MPCController : public Controller {
 
  protected:
   void UpdateState(SimpleMPCDebug *debug);
+  void UpdateState_new(TrajectoryPoint point_to_follow, SimpleMPCDebug *debug);
 
   void UpdateMatrix(SimpleMPCDebug *debug);
 
@@ -111,8 +117,15 @@ class MPCController : public Controller {
                             const double linear_a,
                             const TrajectoryAnalyzer &trajectory_analyzer,
                             SimpleMPCDebug *debug);
+  void ComputeLateralErrors_new(const double x, const double y, const double theta,
+                            const double linear_v, const double angular_v,
+                            const double linear_a,
+                            const TrajectoryAnalyzer &trajectory_analyzer, TrajectoryPoint point_to_follow,
+                            SimpleMPCDebug *debug);
 
   void ComputeLongitudinalErrors(const TrajectoryAnalyzer *trajectory,
+                                 SimpleMPCDebug *debug);
+  void ComputeLongitudinalErrors_new(const TrajectoryAnalyzer *trajectory, TrajectoryPoint point_to_follow,
                                  SimpleMPCDebug *debug);
 
   bool LoadControlConf(const ControlConf *control_conf);
@@ -205,6 +218,8 @@ class MPCController : public Controller {
   // 4 by 1 matrix; state matrix
   Eigen::MatrixXd matrix_state_;
 
+  Eigen::MatrixXd matrix_state_original;
+
   // heading error of last control cycle
   double previous_heading_error_ = 0.0;
   // lateral distance to reference trajectory of last control cycle
@@ -230,7 +245,12 @@ class MPCController : public Controller {
   // parameters for mpc solver; threshold for computation
   double mpc_eps_ = 0.0;
 
+
   common::DigitalFilter digital_filter_;
+  common::DigitalFilter digital_filter_steer;
+  common::DigitalFilter digital_filter_throttle;
+  common::DigitalFilter digital_filter_brake;
+  common::DigitalFilter digital_filter_acc;
 
   std::unique_ptr<Interpolation1D> lat_err_interpolation_;
 
@@ -280,6 +300,16 @@ class MPCController : public Controller {
   double unconstrained_control_diff_limit_ = 5.0;
 
   std::shared_ptr<DependencyInjector> injector_;
+
+
+  bool print_flag = false;
+
+  bool is_first_run = true;
+  //common::VehicleState &previous_vehicle_state_;
+  double previous_state_time_stamp;
+  double prev_steer;
+  double prev_acc;
+
 };
 
 }  // namespace control

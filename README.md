@@ -1,3 +1,38 @@
+# Remark
+
+This rep is a branch of Apollo 8.0, in which the controller is particularly optimized for co-simulation with Carla.
+
+
+## How to use?
+
+According to co-simulation
+
+
+## Modifications
+
+Compared with original Apollo 8.0 code
+
+modules/control/conf/control_conf.pb.txt
+
+modules/control/controller/mpc_controller.cc
+modules/control/controller/mpc_controller.h
+
+
+## How to tune the controller
+
+
+1
+
+
+
+## Challenges and future works
+
+
+2
+
+
+## Apollo 8.0
+
 ![](docs/02_Quick%20Start/demo_guide/images/Apollo_logo.png)
 
 [![Build Status](http://180.76.142.62:8111/app/rest/builds/buildType:Apollo_Build/statusIcon)](http://180.76.142.62:8111/viewType.html?buildTypeId=Apollo_Build&guest=1)
