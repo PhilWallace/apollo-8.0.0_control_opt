@@ -87,7 +87,7 @@ It is very challenging to get a good controller in co-simulation. The Apollo cod
 
 
 
-## Apollo 8.0
+## Apollo 8.0 (Followings are from the original README.md)
 
 ![](docs/02_Quick%20Start/demo_guide/images/Apollo_logo.png)
 
