@@ -15,27 +15,65 @@ Details about environment setup: [Apollo-Carla co-simulation setup](https://gith
 
 ## Specific Modifications
 
-Compared with original Apollo 8.0 code ()
+Compared with original Apollo 8.0 code ([Apollo 8.0](https://github.com/ApolloAuto/apollo/tree/v8.0.0)), this repo applied the following improvements:
+
+
+### Fixed controller configuration 
 
 ```shell
 modules/control/conf/control_conf.pb.txt
+```
 
+The above file is the key configuration file for setting up the controller, including the relation of **how the acceleration can be transformed to throttle or brake signal**. However, the [original configuration](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/conf/control_conf.pb.txt) has several bugs including the too low acceleration, incorrect acc-to-throttle mapping, etc.
+
+
+
+### Fixed MPC controller 
+
+```shell
 modules/control/controller/mpc_controller.cc
 
 modules/control/controller/mpc_controller.h
 ```
 
+The above file is the implementation of the Model Predicted Control (MPC) in Apollo, which is an advanced controller. Several bugs have been discored in the [original MPC controller](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/controller/mpc_controller.cc), and they were fixed in this repo. These bugs include the inconsistent choice of planning point, lack of look-ahead time for planning query, redundant feedback on final control signal, etc.
+
+
+
+### Detailed bug description
+
+If you are interested, the following page can be helpful for understanding the Apollo controller (It is Apollo 9.0, but key ideas are identical to 8.0).
+
+[Apollo Control Module Introduction](https://github.com/ApolloAuto/apollo/blob/master/modules/control/control_component/README_cn.md)
+
+
+Following are the detailed report of discoverd bugs:
+
+[Bugs](https://github.com/guardstrikelab/carla_apollo_bridge/issues/159).
+
+
+
 ## How to tune the controller
 
+Due to the complexity of this co-simulation (e.g, complexity of the Apollo ADS, complex dynamics in Carla), the current controller is still far from being perfect. If you find the controller unsatisfying, you are encouraged to tune the controller as well. Following are some suggestions:
 
-1
+1. Modify the configuration file (<em>control_conf.pb.txt</em>) based on your experimental results.
+
+2. Try different controllers: change **active_controllers** in <em>control_conf.pb.txt</em> from  <em>LAT_CONTROLLER</em>, <em>LON_CONTROLLER</em> to <em>MPC_CONTROLLER</em>, then Apollo will apply MPC controller instead.
+
+3. Modify the controller code (e.g., fixing more bugs). These codes include [lat_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lat_controller.cc), [lon_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lon_controller.cc), [mpc_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/mpc_controller.cc)
 
 
 
 ## Challenges and future works
 
+It is very challenging to get a good controller in co-simulation. The Apollo code can be buggy, not to mention the implementation problems and new challenes brought by Carla. It would be very helpful for the community if you can also contribute to this co-simulation project.
 
-2
+
+
+
+
+
 
 
 ## Apollo 8.0
