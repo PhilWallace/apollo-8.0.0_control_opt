@@ -45,7 +45,7 @@ modules/control/controller/mpc_controller.h
 Compared with original Apollo 8.0 code ([Apollo 8.0](https://github.com/ApolloAuto/apollo/tree/v8.0.0)), this repo applied the following improvements:
 
 
-### Fixed controller configuration 
+### Optimized controller configuration 
 
 ```shell
 modules/control/conf/control_conf.pb.txt
@@ -55,7 +55,7 @@ The above file is the key configuration file for setting up the controller, incl
 
 
 
-### Fixed MPC controller 
+### Optimized MPC controller 
 
 ```shell
 modules/control/controller/mpc_controller.cc
