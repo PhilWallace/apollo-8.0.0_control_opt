@@ -8,11 +8,16 @@ This rep is a branch of Apollo 8.0, in which the **controller** is particularly 
 ## Demo Video
 
 
-[<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=Hc79sDi3f0U "Now in Android: 55")
+Demo: turn left - 90-degree sharp left turn, Town01
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/oOJiw21AAGk/0.jpg)](https://www.youtube.com/watch?v=oOJiw21AAGk)
+[![Demo: left turn](https://img.youtube.com/vi/XBq-kF-m2Us/0.jpg)](https://www.youtube.com/watch?v=XBq-kF-m2Us)
+
+Demo: turn right - 90-degree sharp right turn, Town01
+
+[![Demo: right turn](https://img.youtube.com/vi/oOJiw21AAGk/0.jpg)](https://www.youtube.com/watch?v=oOJiw21AAGk)
 
 
+The above demo is using the tuned MPC controller with turning ratio (in bridge) tuned. This is the default co-simulation control performance that this project aims to provide.
 
 
 
