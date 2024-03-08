@@ -5,6 +5,16 @@ This rep is a branch of Apollo 8.0, in which the **controller** is particularly 
 [Apollo-Carla official bridge](https://github.com/guardstrikelab/carla_apollo_bridge)
 
 
+## Demo Video
+
+
+
+
+
+
+
+
+
 ## How to use?
 
 This project is expected to replace the original Apollo 8.0 for Apollo-Carla co-simulation. You should set up the co-simulation environment according to the bridge official: [Apollo-Carla official bridge](https://github.com/guardstrikelab/carla_apollo_bridge).
@@ -68,17 +78,23 @@ Following are the detailed report of discoverd bugs:
 
 Due to the complexity of this co-simulation (e.g, complexity of the Apollo ADS, complex dynamics in Carla), the current controller is still far from being perfect. If you find the controller unsatisfying, you are encouraged to tune the controller as well. Following are some suggestions:
 
-1. Modify the configuration file ([<em>control_conf.pb.txt</em>](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/conf/control_conf.pb.txt)) based on your experimental results.
+1. Directly tune the [percentage](https://github.com/guardstrikelab/carla_apollo_bridge/blob/a54a4b10f6c0aa0c27b0b39f45a40d039f5fdbd0/carla_bridge/actor/ego_vehicle.py#L57) of the steering signal that is actually applied by Carla. By default, the left turn and right turn signal is tuned with 70% and 85% weight, respectively (the default steer signal tends to overshoot at turns).
 
-2. Try different controllers: change **active_controllers** in [<em>control_conf.pb.txt</em>](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/conf/control_conf.pb.txt) from  <em>LAT_CONTROLLER</em>, <em>LON_CONTROLLER</em> to <em>MPC_CONTROLLER</em>, then Apollo will apply MPC controller instead.
+2. Modify the configuration file ([<em>control_conf.pb.txt</em>](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/conf/control_conf.pb.txt)) based on your experimental results.
 
-3. Modify the controller code (e.g., fixing more bugs). These codes include [lat_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lat_controller.cc), [lon_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lon_controller.cc), [mpc_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/mpc_controller.cc)
+3. Try different controllers: change **active_controllers** in [<em>control_conf.pb.txt</em>](https://github.com/ApolloAuto/apollo/blob/v8.0.0/modules/control/conf/control_conf.pb.txt) from <em>MPC_CONTROLLER</em> to <em>LAT_CONTROLLER</em>, <em>LON_CONTROLLER</em>, then Apollo will apply MPC controller instead.
+
+4. Modify the controller code (e.g., fixing more bugs). These codes include [lat_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lat_controller.cc), [lon_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/lon_controller.cc), [mpc_controller.cc](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/controller/mpc_controller.cc)
 
 
 
 ## Challenges and future works
 
 It is very challenging to get a good controller in co-simulation. The Apollo code can be buggy, not to mention the implementation problems and new challenes brought by Carla. It would be very helpful for the community if you can also contribute to this co-simulation project.
+
+
+
+
 
 
 

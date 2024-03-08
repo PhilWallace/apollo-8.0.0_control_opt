@@ -395,7 +395,7 @@ Status MPCController::ComputeControlCommand(
   double unconstrained_control = 0.0;
   const double v = injector_->vehicle_state()->linear_velocity();
 
-  std::vector<double> control_cmd(controls_ + 1, 0);
+  std::vector<double> control_cmd(controls_, 0);
 
   apollo::common::math::MpcOsqp mpc_osqp(
       matrix_ad_, matrix_bd_, matrix_q_updated_, matrix_r_updated_,
@@ -475,9 +475,8 @@ Status MPCController::ComputeControlCommand(
   
 
 
-  // Bug fix: Delete redundant feed forward control for MPC
-  // double steer_angle = steer_angle_feedback + steer_angle_feedforwardterm_updated_;
-  double steer_angle = steer_angle_feedback + steer_angle_feedforwardterm_updated_;
+
+  double steer_angle = steer_angle_feedback + 0.5*steer_angle_feedforwardterm_updated_ + steer_angle_ff_compensation;
 
 
 
@@ -654,7 +653,7 @@ void MPCController::ComputeLateralErrors(
   //const auto matched_point =
   //    trajectory_analyzer.QueryNearestPointByPosition(x, y);
   const auto matched_point =
-      trajectory_analyzer.QueryNearestPointByAbsoluteTime(injector_->vehicle_state()->timestamp() + 0.6);
+      trajectory_analyzer.QueryNearestPointByAbsoluteTime(injector_->vehicle_state()->timestamp() + 0.8);
 
   const double dx = x - matched_point.path_point().x();
   const double dy = y - matched_point.path_point().y();

@@ -24,7 +24,7 @@ soft_estop_brake: 50.0
 active_controllers: MPC_CONTROLLER
 max_steering_percentage_allowed: 100
 minimum_speed_resolution: 0.2
-query_relative_time: 0.6
+query_relative_time: 0.8
 minimum_speed_protection: 0.1
 lat_controller_conf {
   ts: 0.01
@@ -9369,12 +9369,12 @@ mpc_controller_conf {
   eps: 0.01
   matrix_q: 3.0
   matrix_q: 0.0
-  matrix_q: 15.0
+  matrix_q: 18.45
   matrix_q: 0.0
-  matrix_q: 38.0
-  matrix_q: 16.0
+  matrix_q: 30.0
+  matrix_q: 10.0
   matrix_r: 3.25
-  matrix_r: 1.25
+  matrix_r: 1.75
   cutoff_freq: 10
   mean_filter_window_size: 10
   max_iteration: 150
