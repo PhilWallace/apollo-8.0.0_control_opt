@@ -14,7 +14,9 @@ Demo: turn left - 90-degree sharp left turn, Town01
 
 Demo: turn right - 90-degree sharp right turn, Town01
 
-[![Demo: right turn](https://img.youtube.com/vi/oOJiw21AAGk/0.jpg)](https://www.youtube.com/watch?v=oOJiw21AAGk)
+[![Demo: right turn](<a href="https://www.youtube.com/watch?v=oOJiw21AAGk">
+  <img src="https://img.youtube.com/vi/oOJiw21AAGk/0.jpg" style="width: 300px; height: auto;">
+</a>)](https://www.youtube.com/watch?v=oOJiw21AAGk)
 
 
 The above demo is using the tuned MPC controller with turning ratio (in bridge) tuned. This is the default co-simulation control performance that this project aims to provide.
