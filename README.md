@@ -8,8 +8,9 @@ This rep is a branch of Apollo 8.0, in which the **controller** is particularly 
 ## Demo Video
 
 
+[<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=Hc79sDi3f0U "Now in Android: 55")
 
-
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/oOJiw21AAGk/0.jpg)](https://www.youtube.com/watch?v=oOJiw21AAGk)
 
 
 
