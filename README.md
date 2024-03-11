@@ -21,7 +21,28 @@ The above demo is using the tuned MPC controller with turning ratio (in bridge) 
 
 
 
-## How to use?
+To achieve the above performance, [turning ratio](https://github.com/guardstrikelab/carla_apollo_bridge/blob/master/carla_bridge/actor/ego_vehicle.py#L57) is set as the following:
+
+```shell
+self.right_turn_ratio = 0.7
+self.left_turn_ratio = 0.85
+```
+
+The MPC controller [parameters](https://github.com/PhilWallace/apollo-8.0.0_control_opt/blob/main/modules/control/conf/control_conf.pb.txt#L9370):
+
+```shell
+  matrix_q: 3.0
+  matrix_q: 0.0
+  matrix_q: 18.45
+  matrix_q: 0.0
+  matrix_q: 30.0
+  matrix_q: 10.0
+  matrix_r: 3.25
+  matrix_r: 1.75
+```
+
+
+## How to use this project?
 
 This project is expected to replace the original Apollo 8.0 for Apollo-Carla co-simulation. You should set up the co-simulation environment according to the bridge official: [Apollo-Carla official bridge](https://github.com/guardstrikelab/carla_apollo_bridge).
 
