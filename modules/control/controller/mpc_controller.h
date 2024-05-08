@@ -25,9 +25,6 @@
 #include <memory>
 #include <string>
 
-#include <torch/script.h>
-#include <torch/torch.h>
-
 #include "Eigen/Core"
 #include "modules/common/configs/proto/vehicle_config.pb.h"
 #include "modules/common/filters/digital_filter.h"
